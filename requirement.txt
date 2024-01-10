@@ -1,0 +1,4 @@
+kaggle==1.6.2
+google-cloud-bigquery==3.15.0
+pyarrow==14.0.2
+pandas==2.1.4
