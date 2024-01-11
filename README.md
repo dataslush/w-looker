@@ -72,3 +72,91 @@ Assumptions
 2. We will use the `customername` column to identify unique customers and the `ordernumber` column to distinguish unique orders.
 3. The `sales` and `priceeach` values are presented in USD, with the assumption that currency from different countries has been converted into USD.
 
+
+
+Scratch Pad
+---
+## 1. Sales Analysis
+
+- What is monthly sales of each financial year?
+- What is the best year according to sales?
+- Which quarter is the best for each product line?
+- What product sold the most? Why do you think it sold the most?
+- Who was the top customer?
+- Which country has the best sales?
+- Which city has the best sales?
+
+## 2. psuedo LookML definition
+```lkml
+# model_name/model_name.lkml
+
+# Connection details
+connection: "your_database_connection_name"
+
+# Define view for the sales dataset
+view: sales {
+  # Fields from the sales dataset
+  dimension: order_number {
+    primary_key: true
+  }
+  dimension: quantity_ordered
+  dimension: price_each
+  dimension: order_line_number
+  dimension: sales {
+    type: number
+    sql: ${TABLE}.sales ;;
+    drill_fields: [order_date, product_line, customer_name]
+  }
+  dimension: order_date {
+    type: date
+    timeframes: [month, quarter, year]
+  }
+  dimension: status
+  dimension: qtr_id
+  dimension: month_id
+  dimension: year_id
+  dimension: product_line
+  dimension: msrp
+  dimension: product_code
+  dimension: customer_name
+  dimension: phone
+  dimension: address_line1
+  dimension: address_line2
+  dimension: city
+  dimension: state
+  dimension: postal_code
+  dimension: country
+  dimension: territory
+  dimension: contact_last_name
+  dimension: contact_first_name
+  dimension: deal_size
+  
+  # Measures
+  measure: average_price {
+    type: average
+    sql: ${price_each} ;;
+  }
+  measure: total_sales {
+    type: sum
+    sql: ${sales} ;;
+    drill_fields: [order_date, product_line, customer_name]
+  }
+  
+  # Set up filters
+  set: filters {
+    fields: [order_date, product_line, customer_name, country]
+  }
+
+  # Possible Scenario if we normalise the table, Explore relationships between dimensions
+  explore: sales {
+    join: customers {
+      sql_on: ${sales.customer_name} = ${customers.customer_name} ;;
+      relationship: many_to_one
+    }
+    join: products {
+      sql_on: ${sales.product_code} = ${products.product_code} ;;
+      relationship: many_to_one
+    }
+  }
+}
+```
