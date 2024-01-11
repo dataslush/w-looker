@@ -130,10 +130,18 @@ def load_to_bigquery(
             )
         ]
         table = bigquery.Table(table_ref, schema=schema)
+        table.time_partitioning = bigquery.TimePartitioning(
+            type_=bigquery.TimePartitioningType.DAY,
+            field="orderdate"
+        ) 
         client.create_table(table)
     
     # Load data into the table with truncation
     job_config = bigquery.LoadJobConfig(schema=schema, write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE)
+    job_config.time_partitioning = bigquery.TimePartitioning(
+            type_=bigquery.TimePartitioningType.DAY,
+            field="orderdate"
+        ) 
     job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)
     job.result()
 
