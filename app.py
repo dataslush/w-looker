@@ -130,6 +130,7 @@ def load_to_bigquery(
             )
         ]
         table = bigquery.Table(table_ref, schema=schema)
+        table.clustering_fields = ["country"]
         table.time_partitioning = bigquery.TimePartitioning(
             type_=bigquery.TimePartitioningType.DAY,
             field="orderdate"
@@ -142,6 +143,7 @@ def load_to_bigquery(
             type_=bigquery.TimePartitioningType.DAY,
             field="orderdate"
         ) 
+    job_config.clustering_fields = ["country"]
     job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)
     job.result()
 
